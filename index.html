@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Futures Trade Calculator</title>
+  <style>
+    body {
+      background-color: black;
+      font-family: Arial, sans-serif;
+      color: cyan;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 10px;
+    }
+
+    h2 {
+      color: cyan;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+      background: #000;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid cyan;
+      box-shadow: 0 0 10px cyan;
+      box-sizing: border-box;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 12px;
+      height: 48px;
+      box-sizing: border-box;
+      margin-top: 4px;
+      background: #111;
+      border: 1px solid cyan;
+      color: cyan;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 32%;
+      margin: 10px 1%;
+      padding: 10px;
+      background-color: black;
+      color: cyan;
+      border: 1px solid cyan;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background-color: cyan;
+      color: black;
+    }
+
+    #output {
+      margin-top: 20px;
+      padding: 15px;
+      background: #111;
+      color: white;
+      border: 1px solid cyan;
+      border-radius: 8px;
+      white-space: pre-line;
+    }
+      @media (max-width: 480px) {
+      button {
+      width: 100%;
+      margin: 6px 0;
+       }
+      }
+
+  </style>
+</head>
+<body>
+
+  <h2>TiTech Trade Calculator</h2>
+
+  <div class="container">
+    <label>Total Balance ($):</label>
+    <input type="number" id="balance" step="any" placeholder="Optional" />
+
+    <label>Trade Amount ($):</label>
+    <input type="number" id="tradeAmount" step="any" required />
+
+    <label>Leverage (e.g. 10):</label>
+    <input type="number" id="leverage" step="any" placeholder="Optional" />
+
+    <label>Entry Price:</label>
+    <input type="number" id="entryPrice" step="any" required />
+
+    <label>Take Profit (TP) Price:</label>
+    <input type="number" id="tpPrice" step="any" placeholder="Optional" />
+
+    <label>Stop Loss (SL) Price:</label>
+    <input type="number" id="slPrice" step="any" placeholder="Optional" />
+
+    <label>Custom $ Profit (optional):</label>
+    <input type="number" id="customProfit" step="any" placeholder="Optional" />
+
+    <label>Custom $ Loss (optional):</label>
+    <input type="number" id="customLoss" step="any" placeholder="Optional" />
+
+    <div style="display: flex; justify-content: space-between;">
+      <button onclick="calculate('long')">Calculate Long</button>
+      <button onclick="calculate('short')">Calculate Short</button>
+      <button onclick="clearAll()">Clear All</button>
+    </div>
+<div style="margin-top: 6px; text-align: center; font-size: 14px;">
+  <p style="color: #ff1493; margin-bottom: 4px;">📱 Connect with me</p>
+  <a href="https://t.me/TiTechX01" target="_blank" style="color: cyan; text-decoration: none; margin-right: 15px;">Telegram id</a>
+  <a href="https://whatsapp.com/channel/0029Vax8sIOHAdNdaIxBMe3c" target="_blank" style="color: cyan; text-decoration: none;">WhatsApp Channel</a>
+    </div>
+
+    <center><div id="creditNote" class="result-line" style="color: gray; margin-top: 10px;">
+    Developer: <strong style="color: cyan;">Taha</strong> | Built with ❤️ for traders
+  </center></div>
+    <div style="margin-top: 30px; text-align: center; font-size: 12px; color: gray;">
+  <p>Created by Taha © 2025</p>
+  <p><strong>Disclaimer:</strong> This calculator is for educational purposes only. We are not financial advisors. Please do your own research before making any trades.</p>
+  <p><strong>Note:</strong> Do not copy or redistribute this code without permission.</p>
+</div>
+  </div>
+
+<script>
+  function calculate(type) {
+    const balance = parseFloat(document.getElementById("balance").value);
+    const margin = parseFloat(document.getElementById("tradeAmount").value); // Corrected ID
+    const leverage = parseFloat(document.getElementById("leverage").value);
+    const entry = parseFloat(document.getElementById("entryPrice").value);   // Corrected ID
+    const tp = parseFloat(document.getElementById("tpPrice").value);         // Corrected ID
+    const sl = parseFloat(document.getElementById("slPrice").value);         // Corrected ID
+    const customProfit = parseFloat(document.getElementById("customProfit").value);
+    const customLoss = parseFloat(document.getElementById("customLoss").value);
+
+    if (isNaN(margin) || isNaN(leverage) || isNaN(entry)) {
+      alert("Please enter Trade Amount, Leverage, and Entry Price.");
+      return;
+    }
+
+    const positionSize = margin * leverage;
+
+    let profit = 0, loss = 0, liquidation = 0;
+
+    if (!isNaN(tp)) {
+      profit = type === "long"
+        ? (tp - entry) * positionSize
+        : (entry - tp) * positionSize;
+    }
+
+    if (!isNaN(sl)) {
+      loss = type === "long"
+        ? (entry - sl) * positionSize
+        : (sl - entry) * positionSize;
+    }
+
+    liquidation = type === "long"
+      ? entry - (balance / positionSize)
+      : entry + (balance / positionSize);
+
+    let output = "";
+
+    if (!isNaN(tp)) output += `📈 Profit @ TP: $${profit.toFixed(2)}\n`;
+    if (!isNaN(sl)) output += `📉 Loss @ SL: $${loss.toFixed(2)}\n`;
+
+    output += `💣 Liquidation Price: $${liquidation.toFixed(4)}\n`;
+
+    if (!isNaN(customProfit)) {
+      const tpCustom = type === "long"
+        ? entry + (customProfit * entry / positionSize)
+        : entry - (customProfit * entry / positionSize);
+      output += `🎯 TP for $${customProfit} Profit: $${tpCustom.toFixed(4)}\n`;
+    }
+
+    if (!isNaN(customLoss)) {
+      const slCustom = type === "long"
+        ? entry - (customLoss * entry / positionSize)
+        : entry + (customLoss * entry / positionSize);
+      output += `🛑 SL for $${customLoss} Loss: $${slCustom.toFixed(4)}`;
+    }
+
+    document.getElementById("output").textContent = output;
+  }
+
+  function clearAll() {
+    const ids = ["balance", "tradeAmount", "leverage", "entryPrice", "tpPrice", "slPrice", "customProfit", "customLoss"];
+    ids.forEach(id => document.getElementById(id).value = "");
+    document.getElementById("output").textContent = "";
+  }
+</script>
+
+</body>
+</html>
